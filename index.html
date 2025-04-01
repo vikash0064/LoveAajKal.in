@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+    <title>Love Calculator</title>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        poppins: ["Poppins", "sans-serif"],
+                        dancing: ["Dancing Script", "cursive"]
+                    },
+                    colors: {
+                        loveRed: "#ff4d6d",
+                        lovePink: "#ff85a2",
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .heart {
+            animation: heartbeat 1.5s infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body class="bg-loveRed min-h-screen flex justify-center items-center font-poppins">
+    <div class="bg-white p-6 sm:p-10 flex flex-col items-center space-y-6 rounded-lg shadow-2xl w-full max-w-md">
+        <div class="bg-loveRed text-white font-dancing text-3xl sm:text-4xl px-6 py-3 rounded-lg shadow-md">❤️Love Aaj Kal❤️</div>
+        <div class="flex flex-col space-y-4 w-full items-center">
+            <input type="text" id="name1" placeholder="Enter your name" class="border h-12 w-full rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-loveRed focus:border-loveRed text-lg">
+            <i class="ri-heart-3-fill text-lovePink text-6xl heart"></i>
+            <input type="text" id="name2" placeholder="Enter your love's name" class="border h-12 w-full rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-loveRed focus:border-loveRed text-lg">
+        </div>
+        <button id="calculate-btn" onclick="calculateLove()" class="bg-loveRed text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-lovePink transition-all relative flex items-center justify-center w-full">
+            <span id="calculate-text">Calculate Love ❤️</span>
+            <i id="loading-icon" class="ri-loader-2-line animate-spin text-white text-xl hidden"></i>
+        </button>
+        <div id="result" class="hidden text-center mt-4 bg-pink-200 h-auto w-auto p-6 shadow-2xl rounded-lg">
+            <p class="text-xl text-center"><span id="name1-result" class="text-loveRed"></span> ❤️ <span id="name2-result" class="text-loveRed"></span></p>
+            <p class="text-3xl text-center font-bold text-loveRed" id="percentage-result"></p>
+            <p class="text-lg text-center text-gray-700 mt-2" id="message-result"></p>
+        </div>
+    </div>
+    <script>
+        function saveToDatabase(name1, name2, percentage, message) {
+            fetch("save_love_result.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `name1=${encodeURIComponent(name1)}&name2=${encodeURIComponent(name2)}&percentage=${percentage}&message=${encodeURIComponent(message)}`
+            });
+        }
+
+        function calculateLove() {
+            const name1 = document.getElementById('name1').value.trim().toLowerCase();
+            const name2 = document.getElementById('name2').value.trim().toLowerCase();
+            const calculateBtn = document.getElementById('calculate-btn');
+            const calculateText = document.getElementById('calculate-text');
+            const loadingIcon = document.getElementById('loading-icon');
+
+            if (name1 === "" || name2 === "") return alert("Please enter both names!");
+
+            loadingIcon.classList.remove('hidden');
+            calculateText.classList.add('hidden');
+
+            setTimeout(() => {
+                let percentage = getLovePercentage(name1, name2);
+                let message = getLoveMessage(percentage);
+
+                document.getElementById('name1-result').textContent = capitalize(name1);
+                document.getElementById('name2-result').textContent = capitalize(name2);
+                document.getElementById('percentage-result').textContent = `❤️ ${percentage}`;
+                document.getElementById('message-result').textContent = message;
+                document.getElementById('result').classList.remove('hidden');
+                
+                loadingIcon.classList.add('hidden');
+                calculateText.classList.remove('hidden');
+
+                saveToDatabase(name1, name2, percentage, message);
+            }, 1000);
+        }
+
+        function getLovePercentage(name1, name2) {
+            const cleanName1 = name1.replace(/[^a-z]/g, '');
+            const cleanName2 = name2.replace(/[^a-z]/g, '');
+            let sum1 = 0, sum2 = 0;
+            for (let char of cleanName1) sum1 += char.charCodeAt(0);
+            for (let char of cleanName2) sum2 += char.charCodeAt(0);
+            let loveScore = Math.sqrt(sum1 * sum2) % 100;
+            let variation = Math.floor(Math.random() * 15) - 5;
+            return Math.min(Math.max(Math.floor(loveScore + variation), 1), 100) + "% ❤️";
+        }
+
+        function getLoveMessage(percentage) {
+            // Extract the numeric part of the percentage
+            const numericPercentage = parseInt(percentage);
+            if (numericPercentage >= 90) return "💖 Perfect match! You're soulmates! 💖";
+            if (numericPercentage >= 80) return "💞 Amazing love! You're a great couple! 💞";
+            if (numericPercentage >= 70) return "💕 Good match! You have strong potential. 💕";
+            if (numericPercentage >= 60) return "💓 Decent match. Worth exploring! 💓";
+            if (numericPercentage >= 50) return "💘 Average match. Could go either way. 💘";
+            if (numericPercentage >= 40) return "💔 Below average. Might need work. 💔";
+            if (numericPercentage >= 30) return "💢 Low compatibility. Challenging. 💢";
+            return "💀 Very low score. Maybe just friends? 💀";
+        }
+
+        function capitalize(word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+    </script>
+</body>
+</html>
