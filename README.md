@@ -19,24 +19,8 @@ MySQL:
   The relational database system used to store calculated results.
   Includes fields such as name1, name2, percentage, message, and timestamps.
 
-Repository Structure
-  File Name	Purpose
-  index.html ->Provides the user interface for inputting names and calculating love.
-  save_love_result.php ->Handles form submissions, calculates love percentage, and saves data into the database.
-  database.sql ->Contains SQL commands to create the database (love_calculator) and table (love_results).
-  db_connect.php ->(Missing content) Likely used for establishing the connection to the MySQL database.
-  README.md	->Documentation explaining the purpose of the project and how to use it.
-
 Database Design
   The database is named love_calculator with a single table called love_results. Below is its structure:
-
-Column Name	Data Type	Description
-id	INT (Primary Key)	Auto-incrementing ID for each entry.
-name1	VARCHAR(255)	First name entered by the user.
-name2	VARCHAR(255)	Second name entered by the user.
-percentage	INT	Compatibility percentage calculated.
-message	TEXT	Custom message associated with the result.
-created_at	TIMESTAMP	Timestamp when the result was saved.
 
 How It Works
 Frontend (HTML):
